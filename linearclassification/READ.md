@@ -55,7 +55,7 @@ Test
 
 There's an example training file in the test directory. In this example, the label is embedded in the JSON description of the interaction. Only the minimum structure necessary has been given. Try it like this
 
-    python scored_tags_classifier.py --test_period=4 --config_module_path=lib/default_config.py --classpath=label --training_json=/test/news_title_training_example.json
+    python scored_tags_classifier.py --test_period=4 --config_module_path=lib/default_config.py --classpath=label --training_json=test/news_title_training_example.json
 
 
 Dependencies
