@@ -28,7 +28,7 @@ You need to supply a training set, i.e. a representative set of interactions and
 Config
 ------
 
-Configuration options like the number of features to use, where to source the ngram features, whether to use links info etc. can be set by creating a class that overides the config_base.py in lib and specifying on the command line.
+Configuration options like the number of features to use, where to source the ngram features, whether to use links info etc. can be set by creating a class that overrides the config_base.py in lib and specifying on the command line.
 
 Command line
 -------------
@@ -43,7 +43,7 @@ You execute like this:
 *  --classpath CLASSPATH
                         path to class labels in json file or class label column name in csv
 *  --test_period TEST_PERIOD
-                        how often to hold back training data for testing
+                        how often to hold back training data for testing (UNIT????)
 *  --config_module_path CONFIG_MODULE_PATH
                         python module containing the configuration for the training
 *  --training_csv TRAINING_CSV
@@ -61,4 +61,6 @@ There's an example training file in the test directory. In this example, the lab
 Dependencies
 ------------
 
+* python v.3 or greater
 * scikit-learn: http://scikit-learn.org/stable/install.html
+

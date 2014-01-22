@@ -4,6 +4,8 @@ import logging
 def implode(x):
   return ','.join(map(str,x))
 
+""" http://en.wikipedia.org/wiki/Confusion_matrix
+"""
 def confusion_matrix(list_of_pairs):
   freq=defaultdict(int)
   V=set()

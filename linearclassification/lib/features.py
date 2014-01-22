@@ -3,8 +3,9 @@ from linearclassification.lib.utils import jpath,chunk,contains,has_subsequence
 
 wordsplitter=re.compile(r'[^\w\$]+')
 
-
-class Feature: # base class for shared behaviour - mainly hashability (to allow deduping of apriori and aposteriori features)
+""" Base class for shared behaviour - mainly hashability (to allow deduping of apriori and aposteriori features)
+"""
+class Feature: 
   def __hash__(self):
     return hash(self.string())
   def __eq__(self,other):
@@ -13,6 +14,9 @@ class Feature: # base class for shared behaviour - mainly hashability (to allow 
     return "TODO!",self.string()
 
 chunk_cache=dict() # for perf, as chunking is pretty slow!
+
+""" NGram Feature: 
+"""
 class NgramFeature(Feature):
   def __init__(self,chunks,path):
     self.chunks=chunks
@@ -29,7 +33,7 @@ class NgramFeature(Feature):
     if text is None:
       return False
 
-    if not isinstance(text,list): # we need to handle the case when the path returns a list, eg for shareurls, so standardise on that
+    if not isinstance(text,list): # we need to handle the case when the path returns a list, e.g. for shareurls, so standardise on that
       text=[text]
     for t in text:
       t=t.lower()
@@ -44,6 +48,9 @@ class NgramFeature(Feature):
   def to_csdl(self):
       return '%s contains "%s"' % (self.path,self.string_)
 
+
+""" Disjoined NGrams Feature: 
+"""
 class DisjoinedNgramsFeature(Feature):
   def __init__(self,phrases,path): #phrases is a list of chunks
     self.ngramfeatures=[NgramFeature(chunk(phrase),path) for phrase in phrases]
@@ -58,6 +65,8 @@ class DisjoinedNgramsFeature(Feature):
   def to_csdl(self):
     return '%s any "%s"' % (self.path,','.join([f.string_ for f in self.ngramfeatures]))
 
+""" PunctuatedWord Feature: 
+"""
 # also uses chunk cache
 class PunctuatedWordFeature(Feature):
   def __init__(self,word,path):
@@ -78,6 +87,8 @@ class PunctuatedWordFeature(Feature):
   def to_csdl(self):
     return '%s contains "%s"' % (self.path,self.word)
 
+""" Substr Feature: When the field contains a substring, use it as a feature
+"""
 class SubstrFeature(Feature): # NB CASE SENSITIVE
   def __init__(self,chars,path):
     self.chars=chars
@@ -93,6 +104,8 @@ class SubstrFeature(Feature): # NB CASE SENSITIVE
   def to_csdl(self):
     return '%s cs substr "%s"' % (self.path,self.chars)
 
+""" WordPair Feature: When the field contains both words, in any order or position
+"""
 class WordPairFeature(Feature):
   def __init__(self,pair,path):
     self.pair=pair
@@ -111,9 +124,13 @@ class WordPairFeature(Feature):
     (w,x)=self.pair
     return '%s all "%s,%s"' % (self.path,w,x)
 
+
 combosplitter=re.compile(r'([^\w\$])+')
 comboignore=re.compile(r'[\s\,\.\#\']+')
 combochars=re.compile(r'[\?\!]')
+
+""" WordCombo Feature: When the field contains a specific sequence of words, use it as a feature 
+"""
 class WordComboFeature(Feature): # ordered combo of words
   def __init__(self,combo,path):
     self.combo=combo
@@ -132,7 +149,8 @@ class WordComboFeature(Feature): # ordered combo of words
     result=[x for x in combosplitter.split(text) if not comboignore.match(x) and (len(x)>2 or combochars.search(x))]
     return result
 
-
+""" PathExists Feature: Use the existence of a node as feature
+"""
 class PathExistsFeature(Feature):
   def __init__(self,path):
     self.path=path
@@ -143,6 +161,8 @@ class PathExistsFeature(Feature):
   def to_csdl(self):
     return '%s exists' % (self.path)
 
+""" Regex Feature: When the field matches a certain regular expression, use it as a feature
+"""
 class RegexFeature(Feature):
   def __init__(self,regex,path):
     self.regex=regex
@@ -158,6 +178,8 @@ class RegexFeature(Feature):
   def to_csdl(self):
     return '%s regex_partial "%s"' % (self.path,self.regex.replace('\\','\\\\'))
 
+""" In Feature: When the field value matches one of the values in the list, use it as a feature
+"""
 class InFeature(Feature):
   def __init__(self,term,path):
     self.term=term.lower()
@@ -180,6 +202,8 @@ class InFeature(Feature):
     return '%s in "%s"' % (self.path,self.term)
 
 
+""" Bool Feature, used for boolean fields (e.g. verified_profile)
+"""
 class BoolFeature(Feature):
   def __init__(self,val,path):
     self.val=val
