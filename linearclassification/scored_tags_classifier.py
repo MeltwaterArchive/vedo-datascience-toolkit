@@ -5,11 +5,11 @@ from sklearn.naive_bayes import BernoulliNB
 import numpy as np
 from sklearn.linear_model import SGDClassifier
 
-from linearclassification.lib.metrics import confusion_matrix
+from lib.metrics import confusion_matrix
 import itertools
 
-from linearclassification.lib.features import *
-from linearclassification.lib.utils import jpath,nvl,ngrams,all_zeroes,chunk
+from lib.features import *
+from lib.utils import jpath,nvl,ngrams,all_zeroes,chunk
 
 '''
 Run as follows
@@ -98,8 +98,8 @@ def report_confusion(interactions,targets,fvectors,title):
   confusion_matrix(expectedvsactuals)
   for i,(exp,act) in enumerate(expectedvsactuals):
     if exp!=act:
-      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])).encode('utf-8','ignore'),\
-        '|'.join([selected_features[idx].string() for idx,satisfied in enumerate(fvectors[i]) if satisfied]).encode('utf-8','ignore'))
+      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])),\
+        '|'.join([selected_features[idx].string() for idx,satisfied in enumerate(fvectors[i]) if satisfied]))
 
 def urldomain(url):
   domain=re.sub('https?://','',url)
@@ -296,7 +296,7 @@ logging.info("Number of selected features %i",len(selected_features))
 for f in selected_features:
   logging.info("Feature: %s",f.string().encode('utf-8','ignore'))
 
-#4 learn ######################################################################## 
+#4 learn ########################################################################
 
 clf=SGDClassifier(shuffle=True,alpha=0.01,n_iter=50,fit_intercept=False)
 clf.fit(fvectors2,targets)
@@ -324,7 +324,7 @@ else: # more than two classes
   for ccount,classid in enumerate(clf.classes_):
     for fcount,feature in enumerate(selected_features):
       try:
-        tagcsdl="tag.%s %f {%s}\n" % (get_classname(classid),coeffs[ccount][fcount],feature.to_csdl())
+        tagcsdl="tag.%s %f {%s}" % (get_classname(classid),coeffs[ccount][fcount],feature.to_csdl())
         print tagcsdl.encode('utf-8','ignore')
       except Exception, e:
         print >>sys.stderr, e, feature.string()

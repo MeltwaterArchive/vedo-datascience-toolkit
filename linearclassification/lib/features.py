@@ -1,11 +1,11 @@
 import re,sys
-from linearclassification.lib.utils import jpath,chunk,contains,has_subsequence
+from lib.utils import jpath,chunk,contains,has_subsequence
 
 wordsplitter=re.compile(r'[^\w\$]+')
 
 """ Base class for shared behaviour - mainly hashability (to allow deduping of apriori and aposteriori features)
 """
-class Feature: 
+class Feature:
   def __hash__(self):
     return hash(self.string())
   def __eq__(self,other):
@@ -15,7 +15,7 @@ class Feature:
 
 chunk_cache=dict() # for perf, as chunking is pretty slow!
 
-""" NGram Feature: 
+""" NGram Feature:
 """
 class NgramFeature(Feature):
   def __init__(self,chunks,path):
@@ -49,7 +49,7 @@ class NgramFeature(Feature):
       return '%s contains "%s"' % (self.path,self.string_)
 
 
-""" Disjoined NGrams Feature: 
+""" Disjoined NGrams Feature:
 """
 class DisjoinedNgramsFeature(Feature):
   def __init__(self,phrases,path): #phrases is a list of chunks
@@ -65,7 +65,7 @@ class DisjoinedNgramsFeature(Feature):
   def to_csdl(self):
     return '%s any "%s"' % (self.path,','.join([f.string_ for f in self.ngramfeatures]))
 
-""" PunctuatedWord Feature: 
+""" PunctuatedWord Feature:
 """
 # also uses chunk cache
 class PunctuatedWordFeature(Feature):
@@ -129,7 +129,7 @@ combosplitter=re.compile(r'([^\w\$])+')
 comboignore=re.compile(r'[\s\,\.\#\']+')
 combochars=re.compile(r'[\?\!]')
 
-""" WordCombo Feature: When the field contains a specific sequence of words, use it as a feature 
+""" WordCombo Feature: When the field contains a specific sequence of words, use it as a feature
 """
 class WordComboFeature(Feature): # ordered combo of words
   def __init__(self,combo,path):
