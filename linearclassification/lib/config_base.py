@@ -11,7 +11,6 @@ class ConfigBase:
   usetrigrams=True
   useorderedpairs=False
   useorderedtriples=False
-  useorderedpairs=False
 
   useinteractionsource=False
   usewordpairs=False
