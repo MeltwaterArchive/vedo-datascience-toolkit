@@ -1,5 +1,5 @@
 import re,sys
-from lib.utils import jpath,chunk,contains,has_subsequence
+from linearclassification.lib.utils import jpath,chunk,contains,has_subsequence
 
 wordsplitter=re.compile(r'[^\w\$]+')
 

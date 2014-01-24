@@ -5,11 +5,11 @@ from sklearn.naive_bayes import BernoulliNB
 import numpy as np
 from sklearn.linear_model import SGDClassifier
 
-from lib.metrics import confusion_matrix
+from linearclassification.lib.metrics import confusion_matrix
 import itertools
 
-from lib.features import *
-from lib.utils import jpath,nvl,ngrams,all_zeroes,chunk
+from linearclassification.lib.features import *
+from linearclassification.lib.utils import jpath,nvl,ngrams,all_zeroes,chunk
 
 '''
 Run as follows
@@ -98,8 +98,8 @@ def report_confusion(interactions,targets,fvectors,title):
   confusion_matrix(expectedvsactuals)
   for i,(exp,act) in enumerate(expectedvsactuals):
     if exp!=act:
-      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])),\
-        '|'.join([selected_features[idx].string() for idx,satisfied in enumerate(fvectors[i]) if satisfied]))
+      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])).encode('utf-8','ignore'),\
+        '|'.join([selected_features[idx].string() for idx,satisfied in enumerate(fvectors[i]) if satisfied]).encode('utf-8','ignore'))
 
 def urldomain(url):
   domain=re.sub('https?://','',url)

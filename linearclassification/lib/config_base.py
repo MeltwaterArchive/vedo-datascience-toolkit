@@ -1,4 +1,4 @@
-from lib.features import *
+from linearclassification.lib.features import *
 
 class ConfigBase:
 

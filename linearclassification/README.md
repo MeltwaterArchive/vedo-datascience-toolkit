@@ -22,7 +22,7 @@ You specify how much data to hold back for validation on the command line using 
 
 ##Dependencies
 
-* python v2.7 or greater
+* Python v2.7 or greater
 * scikit-learn: http://scikit-learn.org/stable/install.html
 
 
@@ -65,9 +65,15 @@ You can create your own configuration by inheriting from the ConfigBase module (
 
 
 
-##Command line
+##Executing
 
-You execute like this:
+Firstly, clone the repository to your local machine.
+
+Next, you'll need to add the library to your PYTHONPATH environment setting by modifying your .profile or .bash_profile file, for example:
+
+<pre>export PYTHONPATH=$PYTHONPATH:~/Documents/Datasift/Code/vedo-data-science-toolkit</pre>
+
+You execute the tool as follows:
 
     python scored_tags_classifier.py --test_period=[Test period] --config_module_path=[config file] --training_json=[training interactions] --training_csv=[OPTIONAL: label file] --classpath=[label path] > [output file]
 
