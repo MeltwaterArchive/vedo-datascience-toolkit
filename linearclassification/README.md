@@ -75,7 +75,7 @@ Next, you'll need to add the library to your PYTHONPATH environment setting by m
 
 You execute the tool as follows:
 
-    python scored_tags_classifier.py --test_period=[Test period] --config_module_path=[config file] --training_json=[training interactions] --training_csv=[OPTIONAL: label file] --classpath=[label path] > [output file]
+    python scored_tags_classifier.py --test_period=[Test period] --config_module_path=[config file] --training_json=[training interactions] --training_csv=[OPTIONAL: label file] --classpath=[label path] --csdl_file [output file]
 
 
 lib/default_config.py
@@ -85,8 +85,7 @@ lib/default_config.py
 *  **--test_period** - Controls the amount of data held back for testing the resulting classifier. For instance if you specify 4, this means that one in four interactions will be kept back for testing.
 *  **--config_module_path** - Python module containing the configuration for the execution.
 *  **--training_csv** - OPTIONAL. Path to the CSV file containing class labels.
-
-The resulting classifier will be written to standard output, hence the command above suggests piping this to an output file.
+*  **--csdl_file CSDL_FILE** Output file for CSDL
 
 When you execute the script a timestamped log file will be produced giving you further DEBUG information.
 
@@ -97,7 +96,7 @@ As an example to demonstrate the tool, there is a file called **news_title_train
 
 To run the example:
 
-    python scored_tags_classifier.py --test_period=4 --config_module_path=lib/default_config.py --classpath=label --training_json=test/news_title_training_example.json > classifier.txt
+    python scored_tags_classifier.py --test_period=4 --config_module_path=lib/default_config.py --classpath=label --training_json=test/news_title_training_example.json --csdl_file classifier.txt
 
 
 

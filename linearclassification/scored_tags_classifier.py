@@ -28,11 +28,14 @@ argparser.add_argument('--training_json',required=True,help='path to file contai
 argparser.add_argument('--classpath',required=True,help='path to class labels in json file or class label column name in csv')
 argparser.add_argument('--test_period',required=True,type=int,help='how often to hold back training data for testing')
 argparser.add_argument('--config_module_path',required=True,help='python module containing the configuration for the training')
-argparser.add_argument('--training_csv',help='path to csv file containing labels (must have header )')
+argparser.add_argument('--training_csv',help='path to csv file containing labels (must have header)')
+argparser.add_argument('--csdl_file',required=True,help='output file for CSDL')
 
 opts=argparser.parse_args()
 
-logging.basicConfig(filename='.'.join(['scored_tags_classifier',time.strftime('%Y%m%d-%H%M%S'),str(os.getpid()),'log']),level=logging.DEBUG)
+logfile='.'.join(['scored_tags_classifier',time.strftime('%Y%m%d-%H%M%S'),str(os.getpid()),'log'])
+print >>sys.stderr,"Logging to %s" % logfile
+logging.basicConfig(filename=logfile,level=logging.DEBUG)
 logging.info('command line options passed: %s',opts)
 
 config=imp.load_source('config', opts.config_module_path).Config()
@@ -85,7 +88,8 @@ def build_feature_vectors(interactions,features,result):
   for interaction in interactions:
     counter+=1
     if not counter % 100:
-      logging.debug("Working on interaction: %i",counter)
+      logging.debug("Building feature vector for interaction: %i",counter)
+      print >>sys.stderr,"Building feature vector for interaction: %i" % counter
     fv=[int(f.is_satisfied_by(interaction)) for f in features]
     if all_zeroes(fv):
       pass
@@ -98,7 +102,7 @@ def report_confusion(interactions,targets,fvectors,title):
   confusion_matrix(expectedvsactuals)
   for i,(exp,act) in enumerate(expectedvsactuals):
     if exp!=act:
-      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])).encode('utf-8','ignore'),\
+      logging.info("exp:act (%s,%s): %s |%s",exp,act, nvl(jpath(featurepath,interactions[i])),\
         '|'.join([selected_features[idx].string() for idx,satisfied in enumerate(fvectors[i]) if satisfied]).encode('utf-8','ignore'))
 
 def urldomain(url):
@@ -107,6 +111,10 @@ def urldomain(url):
   return domain.split('/')[0]
 
 # MAIN #####################################################################################
+
+# check we can open the output file, to avoid disappointment after a long wait
+with open(opts.csdl_file,'w'):
+  pass
 
 #0 read in training file if supplied as csv
 if opts.training_csv is not None:
@@ -119,6 +127,7 @@ if opts.training_csv is not None:
   logging.info("length of intid2class: %i",len(intid2class))
 
 #1 read in interactions, creating the list of candidate aposteriori features based on words
+print >>sys.stderr, "Loading interactions"
 ngramfreq=defaultdict(int) # term => frequency
 wordpairfreq=defaultdict(int) # term => frequency
 puncwordfreq=defaultdict(int) # term => frequency
@@ -136,6 +145,8 @@ features=set()
 with open(opts.training_json) as training_json:
   for ctr,i in enumerate(training_json):
     try:
+      if not ctr % 500 and ctr>0:
+        print >>sys.stderr, "Looking for candidate features in interaction %i" %ctr
       j=json.loads(i)
       C=get_class(j)
       if C is not None:
@@ -266,6 +277,7 @@ logging.info("Number of features %i; number of target classes %i",len(features),
 #2 build the feature vectors based on the candidate features
 
 logging.info("Building training feature vectors")
+print >>sys.stderr,"Building training feature vectors"
 fvectors=list()
 build_feature_vectors(interactions,features,fvectors)
 
@@ -293,6 +305,7 @@ for fv in fvectors:
   fvectors2.append([fv[idx] for idx in support])
 
 logging.info("Number of selected features %i",len(selected_features))
+print >>sys.stderr,"Selected %i features" % len(selected_features)
 for f in selected_features:
   logging.info("Feature: %s",f.string().encode('utf-8','ignore'))
 
@@ -306,26 +319,30 @@ logging.info("Classifier:%s",clf)
 report_confusion(interactions,targets,fvectors2,"training")
 #build features vectors for test data
 test_fvectors=list()
+print >>sys.stderr,"Building test feature vectors"
 build_feature_vectors(test_interactions,selected_features,test_fvectors)
 report_confusion(test_interactions,test_targets,test_fvectors,"test")
 
 #6 write CSDL tags #############################################################################
 
+logging.info("Writing CSDL")
+print >>sys.stderr,"Writing CSDL"
 coeffs=clf.coef_
-if len(coeffs)==1: # binary case: coeffs are stored a little differently
-  for fcount,feature in enumerate(selected_features):
-    try:
-      coeff=coeffs[0][fcount]
-      print "tag.%s %f {%s}" % (get_classname(clf.classes_[1]),coeff,feature.to_csdl().encode('utf-8','ignore'))
-      print "tag.%s %f {%s}" % (get_classname(clf.classes_[0]),-coeff,feature.to_csdl().encode('utf-8','ignore'))
-    except Exception, e:
-      print >>sys.stderr, e, feature.string()
-else: # more than two classes
-  for ccount,classid in enumerate(clf.classes_):
+with open(opts.csdl_file,'w') as csdl:
+  if len(coeffs)==1: # binary case: coeffs are stored a little differently
     for fcount,feature in enumerate(selected_features):
       try:
-        tagcsdl="tag.%s %f {%s}" % (get_classname(classid),coeffs[ccount][fcount],feature.to_csdl())
-        print tagcsdl.encode('utf-8','ignore')
+        coeff=coeffs[0][fcount]
+        print >>csdl,"tag.%s %f {%s}" % (get_classname(clf.classes_[1]),coeff,feature.to_csdl().encode('utf-8','ignore'))
+        print >>csdl,"tag.%s %f {%s}" % (get_classname(clf.classes_[0]),-coeff,feature.to_csdl().encode('utf-8','ignore'))
       except Exception, e:
         print >>sys.stderr, e, feature.string()
+  else: # more than two classes
+    for ccount,classid in enumerate(clf.classes_):
+      for fcount,feature in enumerate(selected_features):
+        try:
+          tagcsdl="tag.%s %f {%s}" % (get_classname(classid),coeffs[ccount][fcount],feature.to_csdl())
+          print >>csdl,tagcsdl.encode('utf-8','ignore')
+        except Exception, e:
+          print >>sys.stderr, e, feature.string()
 
