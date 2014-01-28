@@ -85,7 +85,7 @@ lib/default_config.py
 *  **--test_period** - Controls the amount of data held back for testing the resulting classifier. For instance if you specify 4, this means that one in four interactions will be kept back for testing.
 *  **--config_module_path** - Python module containing the configuration for the execution.
 *  **--training_csv** - OPTIONAL. Path to the CSV file containing class labels.
-*  **--csdl_file CSDL_FILE** Output file for CSDL
+*  **--csdl_file** Output file for CSDL
 
 When you execute the script a timestamped log file will be produced giving you further DEBUG information.
 
