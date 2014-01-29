@@ -77,13 +77,10 @@ You execute the tool as follows:
 
     python scored_tags_classifier.py --test_period=[Test period] --config_module_path=[config file] --training_json=[training interactions] --training_csv=[OPTIONAL: label file] --classpath=[label path] --csdl_file [output file]
 
-
-lib/default_config.py
-
 *  **--training_json** - Path to the file of training interactions formatted as JSON line delimited.
 *  **--classpath** - The path the class lable for the interaction. When using a CSV file as the source of labels this is the column header, otherwise this is the path to the appropriate property in the JSON object.
 *  **--test_period** - Controls the amount of data held back for testing the resulting classifier. For instance if you specify 4, this means that one in four interactions will be kept back for testing.
-*  **--config_module_path** - Python module containing the configuration for the execution.
+*  **--config_module_path** - Python module containing the configuration for the execution. Default config file is at **lib/default_config.py**
 *  **--training_csv** - OPTIONAL. Path to the CSV file containing class labels.
 *  **--csdl_file** Output file for CSDL
 
