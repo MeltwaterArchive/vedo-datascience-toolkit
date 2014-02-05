@@ -60,7 +60,7 @@ You can create your own configuration by inheriting from the ConfigBase module (
 * **useshareurlwords** - Whether to consider links in the content.
 * **usehashtags** - Whether to consider hashtags in the content.
 * **useunigrams, usebigrams, usetrigrams** - Whether to look for features that are one, two or three adjacent words.
-* **usepairwords** - Whether to look for pairs of words that are not adjacent and are in any order.
+* **usewordpairs** - Whether to look for pairs of words that are not adjacent and are in any order.
 * **useorderedpairs,useorderedtriples** - Whether to look for pairs or trios of words that are not adjacent and but are in a consistent order.
 
 
